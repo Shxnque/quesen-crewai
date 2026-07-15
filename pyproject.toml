@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quesen-crewai"
+version = "0.1.0"
+description = "Official CrewAI tool wrapper for Quesen — deterministic A2A risk validation for CrewAI agents and crews."
+authors = [{ name = "Senueren Bureau" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["quesen", "crewai", "a2a", "agents", "risk"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Intended Audience :: Developers",
+]
+dependencies = [
+  "quesen-sdk>=0.1.0",
+  "crewai-tools>=0.4.0",
+  "pydantic>=2.5",
+]
+
+[project.urls]
+Homepage = "https://github.com/Shxnque/Quesen-sib"
+Source   = "https://github.com/Shxnque/quesen-crewai"
+
+[tool.setuptools.packages.find]
+include = ["quesen_crewai*"]
