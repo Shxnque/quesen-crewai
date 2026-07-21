@@ -2,7 +2,7 @@
 
 > Deterministic A2A risk validation as a CrewAI `BaseTool`. Drop it on any Agent, any Crew.
 
-**Parent repo:** https://github.com/Shxnque/Quesen-sib
+**Developer portal:** https://senueren.co.za/quesen · **Source:** https://github.com/Shxnque/quesen
 
 ---
 
@@ -43,4 +43,4 @@ print(crew.kickoff())
 - `QuesenSimulateTool` — wraps `/simulate`
 - `QuesenReportTool`   — wraps `/report` (v1.1 schema)
 
-MIT license. Extracted from `Shxnque/Quesen-sib` `sdks/crewai/`.
+MIT license. See [`senueren.co.za/quesen`](https://senueren.co.za/quesen) for canonical documentation.
