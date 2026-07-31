@@ -2,6 +2,7 @@
 
 > Deterministic A2A risk validation as a CrewAI `BaseTool`. Drop it on any Agent, any Crew.
 
+**Status:** v0.2.0 · tracks Quesen engine v1.10.0 · receipt provenance forwarded.
 **Developer portal:** https://senueren.co.za/quesen · **Source:** https://github.com/Shxnque/quesen
 
 ---
@@ -36,6 +37,18 @@ check = Task(
 crew = Crew(agents=[defender], tasks=[check])
 print(crew.kickoff())
 ```
+
+## Receipt provenance (v1.10)
+
+Calling `QuesenValidateTool._run(...)` returns the raw response dict from the
+underlying `quesen-sdk` client. Against a v1.10.0+ engine that dict includes:
+
+- `input_snapshot_hash` — SHA-256 over canonical request JSON.
+- `commit_sha` — git SHA of the ruleset live at decision time (or `"unknown"`).
+
+Both flow through untouched for CrewAI callers to log or verify. See the
+[public API reference](https://github.com/Shxnque/quesen/blob/main/docs/api-reference.md#receipt-provenance-v110)
+for the contract.
 
 ## Tools shipped
 
