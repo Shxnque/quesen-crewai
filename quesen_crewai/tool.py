@@ -20,11 +20,23 @@ except ImportError as exc:  # pragma: no cover
     ) from exc
 
 try:
-    from quesen_sdk import QuesenClient
+    from quesen_sdk import QuesenClient, QuesenFirewall
 except ImportError as exc:  # pragma: no cover
     raise ImportError(
         "quesen-crewai requires `quesen-sdk`. Install with `pip install quesen-sdk`."
     ) from exc
+
+
+class _FirewallInput(BaseModel):
+    """Describe the high-risk action the agent is about to take."""
+    action: str = Field(default="tool_call", description="tool_call | send_data | payment")
+    agent: Optional[str] = Field(default=None, max_length=256)
+    target: Optional[str] = Field(default=None, max_length=512)
+    data_class: Optional[Any] = Field(default=None, description="e.g. 'secret' | ['secret','pii']")
+    capability_class: Optional[str] = Field(default=None)
+    granted_scopes: Optional[list] = None
+    requested_scopes: Optional[list] = None
+    client_request_id: Optional[str] = Field(default=None, max_length=128)
 
 
 class _ValidateInput(BaseModel):
@@ -57,6 +69,7 @@ class _BaseQuesenTool(BaseTool):
     api_key: Optional[str] = None
     timeout: float = 5.0
     retries: int = 2
+    sandbox: bool = False
     _client: Optional[QuesenClient] = None
 
     def _get_client(self) -> QuesenClient:
@@ -65,7 +78,33 @@ class _BaseQuesenTool(BaseTool):
                 base_url=self.base_url, api_key=self.api_key,
                 timeout=self.timeout, retries=self.retries,
             )
+            if self.sandbox and not self._client.api_key:
+                self._client.create_sandbox_key()
         return self._client
+
+
+class QuesenFirewallTool(_BaseQuesenTool):
+    name: str = "quesen_firewall"
+    description: str = (
+        "Agent firewall. Call BEFORE any high-risk action (sending data out, a "
+        "tool/capability invocation, or a payment). Returns a deterministic "
+        "PASS/REVIEW/BLOCK/SKIP decision plus reason codes and an audit receipt."
+    )
+    args_schema: Type[BaseModel] = _FirewallInput
+
+    def _run(self, **kwargs: Any) -> Dict[str, Any]:
+        fw = QuesenFirewall(client=self._get_client())
+        d = fw.check(
+            agent=kwargs.get("agent"),
+            action=kwargs.get("action") or "tool_call",
+            target=kwargs.get("target"),
+            data_class=kwargs.get("data_class"),
+            capability_class=kwargs.get("capability_class"),
+            granted_scopes=kwargs.get("granted_scopes"),
+            requested_scopes=kwargs.get("requested_scopes"),
+            client_request_id=kwargs.get("client_request_id"),
+        )
+        return d.raw
 
 
 class QuesenValidateTool(_BaseQuesenTool):
