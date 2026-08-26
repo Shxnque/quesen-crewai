@@ -1,9 +1,23 @@
 # Quesen — CrewAI Tool
 
-> Deterministic A2A risk validation as a CrewAI `BaseTool`. Drop it on any Agent, any Crew.
+> Deterministic **Agent Firewall** + A2A risk validation as CrewAI `BaseTool`s. Drop it on any Agent, any Crew.
 
-**Status:** v0.2.0 · tracks Quesen engine v1.10.0 · receipt provenance forwarded.
+**Status:** v0.3.0 · tracks Quesen engine v1.10.0 (TSC v2 firewall) · requires `quesen-sdk>=0.4.1`.
 **Developer portal:** https://senueren.co.za/quesen · **Source:** https://github.com/Shxnque/quesen
+
+---
+
+## Agent Firewall (no signup)
+
+```python
+from quesen_crewai import QuesenFirewallTool
+
+firewall = QuesenFirewallTool(
+    base_url="https://web-production-aa5ba.up.railway.app", sandbox=True,
+)
+# Attach to any CrewAI Agent's tools=[...]; deterministic PASS/REVIEW/BLOCK/SKIP.
+```
+
 
 ---
 

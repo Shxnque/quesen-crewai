@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0] — 2026-08-27 · Agent Firewall tool (TSC v2)
+
+### Added
+- **`QuesenFirewallTool`** — CrewAI `BaseTool` wrapping the Quesen Agent Firewall
+  (`POST /tsc/validate`): deterministic PASS/REVIEW/BLOCK/SKIP + audit receipt
+  before a high-risk action. `sandbox=True` self-serves a free key.
+
+### Changed
+- Bumped `quesen-sdk` dependency floor to `>=0.4.1`.
+
 ## [0.2.0] — 2026-07-31 · Tracks engine v1.10.0 receipt provenance
 
 ### Changed
