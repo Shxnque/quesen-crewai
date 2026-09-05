@@ -1,4 +1,8 @@
-"""Quesen CrewAI integration — Agent Firewall + A2A risk tools."""
+"""Quesen CrewAI integration — Agent Firewall + A2A risk tools + enforcement.
+
+v0.4.0 adds the fail-closed enforcement decorator `quesen_guard` and fixes the
+`BaseTool` import for modern CrewAI (moved to `crewai.tools`).
+"""
 
 from .tool import (
     QuesenFirewallTool,
@@ -6,8 +10,9 @@ from .tool import (
     QuesenSimulateTool,
     QuesenValidateTool,
 )
+from .guard import quesen_guard
 
-__version__ = "0.3.0"
+__version__ = "0.5.0"
 
 __all__ = [
     "__version__",
@@ -15,4 +20,5 @@ __all__ = [
     "QuesenValidateTool",
     "QuesenSimulateTool",
     "QuesenReportTool",
+    "quesen_guard",
 ]

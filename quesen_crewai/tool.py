@@ -11,19 +11,24 @@ from __future__ import annotations
 from typing import Any, Dict, Optional, Type
 
 try:
-    from crewai_tools import BaseTool
+    # crewai-tools >= 0.8 / crewai >= 0.x moved BaseTool to `crewai.tools`.
+    # Fall back to the legacy `crewai_tools` export for older installs.
+    try:
+        from crewai.tools import BaseTool
+    except ImportError:
+        from crewai_tools import BaseTool
     from pydantic import BaseModel, Field
 except ImportError as exc:  # pragma: no cover
     raise ImportError(
-        "quesen-crewai requires `crewai-tools` and `pydantic`. "
-        "Install with `pip install quesen-crewai`."
+        "quesen-crewai requires `crewai` (>=0.28, provides crewai.tools.BaseTool) "
+        "or legacy `crewai-tools`, plus `pydantic`. Install with `pip install quesen-crewai`."
     ) from exc
 
 try:
-    from quesen_sdk import QuesenClient, QuesenFirewall
+    from quesen_sdk import QuesenClient, QuesenFirewall, verify_receipt
 except ImportError as exc:  # pragma: no cover
     raise ImportError(
-        "quesen-crewai requires `quesen-sdk`. Install with `pip install quesen-sdk`."
+        "quesen-crewai requires `quesen-sdk>=0.5.0`. Install with `pip install quesen-sdk`."
     ) from exc
 
 
@@ -70,6 +75,9 @@ class _BaseQuesenTool(BaseTool):
     timeout: float = 5.0
     retries: int = 2
     sandbox: bool = False
+    verify_receipts: bool = False
+    verify_recompute: bool = False
+    engine_public_key_hex: Optional[str] = None
     _client: Optional[QuesenClient] = None
 
     def _get_client(self) -> QuesenClient:
@@ -81,6 +89,19 @@ class _BaseQuesenTool(BaseTool):
             if self.sandbox and not self._client.api_key:
                 self._client.create_sandbox_key()
         return self._client
+
+    def _verify(self, raw: Dict[str, Any]) -> Dict[str, Any]:
+        if not self.verify_receipts:
+            return raw
+        v = verify_receipt(raw, public_key_hex=self.engine_public_key_hex)
+        return {
+            **raw,
+            "receipt_verified": v.signature_valid if v.signed else v.ok,
+            "receipt_verification": {
+                "ok": v.ok, "signed": v.signed,
+                "signature_valid": v.signature_valid, "reason": v.reason,
+            },
+        }
 
 
 class QuesenFirewallTool(_BaseQuesenTool):
@@ -94,7 +115,7 @@ class QuesenFirewallTool(_BaseQuesenTool):
 
     def _run(self, **kwargs: Any) -> Dict[str, Any]:
         fw = QuesenFirewall(client=self._get_client())
-        d = fw.check(
+        call = dict(
             agent=kwargs.get("agent"),
             action=kwargs.get("action") or "tool_call",
             target=kwargs.get("target"),
@@ -104,7 +125,22 @@ class QuesenFirewallTool(_BaseQuesenTool):
             requested_scopes=kwargs.get("requested_scopes"),
             client_request_id=kwargs.get("client_request_id"),
         )
-        return d.raw
+        if self.verify_recompute:
+            ctx = fw.build_context(**call)
+            d = self._get_client().validate_tsc(ctx)
+            v = verify_receipt(d.raw, recompute_request=ctx,
+                               public_key_hex=self.engine_public_key_hex)
+            return {
+                **d.raw,
+                "receipt_recomputed": v.recomputed,
+                "receipt_verification": {
+                    "ok": v.ok, "signed": v.signed,
+                    "signature_valid": v.signature_valid,
+                    "recomputed": v.recomputed, "reason": v.reason,
+                },
+            }
+        d = fw.check(**call)
+        return self._verify(d.raw)
 
 
 class QuesenValidateTool(_BaseQuesenTool):
