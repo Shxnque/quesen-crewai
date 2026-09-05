@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.5.0] — 2026-09-05 · SDK 0.6.0 parity · offline verdict replay
+
+### Added
+- **`verify_recompute=True`** on `QuesenFirewallTool` — REPLAY the verdict offline
+  against the exact context and merge `receipt_recomputed` + `receipt_verification`
+  into the tool output (BEA criticism-ledger C-003 / C-004).
+
+### Changed
+- Bumped `quesen-sdk` dependency floor to `>=0.6.0`.
+
+## [0.4.0] — 2026-09-05 · SDK 0.5.0 parity · enforcement + verifiable receipts
+
+### Added
+- **`quesen_guard(...)`** — fail-closed enforcement decorator (wraps
+  `quesen_sdk.QuesenFirewall.guard`): a gated callable runs ONLY on PASS,
+  otherwise `TscBlocked` is raised. Verdict attached as `.last_decision`.
+- **Independent receipt verification** on `QuesenFirewallTool` via
+  `verify_receipts=True` (+ optional `engine_public_key_hex`).
+
+### Fixed
+- **`BaseTool` import** now resolves against modern CrewAI (`crewai.tools`),
+  with a fallback to legacy `crewai_tools`. Previously failed to import on
+  crewai/crewai-tools ≥ 1.x.
+
+### Changed
+- Bumped `quesen-sdk` dependency floor to `>=0.5.0`.
+
 ## [0.3.0] — 2026-08-27 · Agent Firewall tool (TSC v2)
 
 ### Added
