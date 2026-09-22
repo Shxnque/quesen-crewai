@@ -1,6 +1,6 @@
 # Quesen — CrewAI Tool
 
-> Deterministic **Agent Firewall** + A2A risk validation as CrewAI `BaseTool`s. Drop it on any Agent, any Crew.
+> Deterministic **AI agent authorization & governance** (a portable decision + authority + evidence layer) as CrewAI `BaseTool`s — PASS/REVIEW/BLOCK/SKIP with reason codes + replayable receipts. Drop it on any Agent, any Crew.
 
 **Status:** v0.3.0 · tracks Quesen engine v1.10.0 (TSC v2 firewall) · requires `quesen-sdk>=0.4.1`.
 **Developer portal:** https://senueren.co.za/quesen · **Source:** https://github.com/Shxnque/quesen
