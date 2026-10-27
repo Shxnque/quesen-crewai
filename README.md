@@ -13,7 +13,7 @@
 from quesen_crewai import QuesenFirewallTool
 
 firewall = QuesenFirewallTool(
-    base_url="https://web-production-3df26.up.railway.app", sandbox=True,
+    base_url="https://api.senueren.co.za", sandbox=True,
 )
 # Attach to any CrewAI Agent's tools=[...]; deterministic PASS/REVIEW/BLOCK/SKIP.
 ```
